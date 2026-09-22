@@ -1,0 +1,190 @@
+```html
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>SmartStudy Dashboard</title>
+
+<link rel="stylesheet"
+      href="style.css">
+
+</head>
+
+
+<body>
+
+<div class="dashboard">
+
+
+    <!-- Navigation -->
+
+    <nav class="navbar">
+
+        <div class="nav-logo">
+
+            🧠 SmartStudy <span>AI</span>
+
+        </div>
+
+
+        <div class="nav-links">
+
+            <button onclick="go('dashboard.html')">
+                Dashboard
+            </button>
+
+            <button onclick="go('planner.html')">
+                Planner
+            </button>
+
+            <button onclick="go('chatbot.html')">
+                AI Tutor
+            </button>
+
+            <button onclick="go('quiz.html')">
+                Quiz
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <!-- Welcome -->
+
+    <section class="hero">
+
+        <h1>
+            Welcome back,
+            <span id="name"></span> 👋
+        </h1>
+
+        <p>
+            Let's make today a productive learning day.
+        </p>
+
+    </section>
+
+
+    <!-- Dashboard cards -->
+
+    <section class="grid">
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                📅
+            </div>
+
+            <h2>AI Study Planner</h2>
+
+            <p>
+                Generate a personalized study
+                schedule based on your exams,
+                subjects and available time.
+            </p>
+
+            <button onclick="go('planner.html')">
+                Open Planner
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                🤖
+            </div>
+
+            <h2>AI Study Tutor</h2>
+
+            <p>
+                Ask questions about programming,
+                mathematics, databases and
+                other subjects.
+            </p>
+
+            <button onclick="go('chatbot.html')">
+                Ask AI
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                🧪
+            </div>
+
+            <h2>Practice Quiz</h2>
+
+            <p>
+                Test your knowledge and identify
+                the topics that need more revision.
+            </p>
+
+            <button onclick="go('quiz.html')">
+                Start Quiz
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                📊
+            </div>
+
+            <h2>Progress</h2>
+
+            <p>
+                Track your learning progress,
+                study streak and completed tasks.
+            </p>
+
+            <button onclick="go('planner.html')">
+                View Progress
+            </button>
+
+        </div>
+
+
+    </section>
+
+</div>
+
+
+<script>
+
+const name =
+    localStorage.getItem("studentName")
+    || "Student";
+
+
+document.getElementById("name")
+    .innerText = name;
+
+
+function go(page) {
+
+    window.location.href = page;
+
+}
+
+</script>
+
+</body>
+
+</html>
+```

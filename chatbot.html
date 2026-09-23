@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Tutor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+    <h2>🤖 AI Study Tutor</h2>
+    <a href="dashboard.html">Dashboard</a>
+</nav>
+
+<div class="container">
+
+    <div class="card chatbot">
+
+        <h1>Ask Your AI Tutor</h1>
+
+        <div id="chatBox">
+
+            <div class="bot-message">
+                👋 Hello! I'm your SmartStudy AI Tutor.
+                Ask me about Python, Java, C, DBMS or HTML.
+            </div>
+
+        </div>
+
+        <div class="chat-input">
+
+            <input type="text"
+                   id="userMessage"
+                   placeholder="Ask your question...">
+
+            <button onclick="sendMessage()">Send</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function sendMessage() {
+
+    const input = document.getElementById("userMessage");
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    const chatBox = document.getElementById("chatBox");
+
+    chatBox.innerHTML += `
+        <div class="user-message">
+            ${message}
+        </div>
+    `;
+
+    const reply = getReply(message);
+
+    chatBox.innerHTML += `
+        <div class="bot-message">
+            🤖 ${reply}
+        </div>
+    `;
+
+    input.value = "";
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function getReply(message) {
+
+    const text = message.toLowerCase();
+
+    if (text.includes("python")) {
+        return "Python is a high-level programming language known for its simple syntax and wide use in AI, data science and automation.";
+    }
+
+    if (text.includes("java")) {
+        return "Java is an object-oriented programming language. It uses the JVM to run Java bytecode across different platforms.";
+    }
+
+    if (text.includes("polymorphism")) {
+        return "Polymorphism means one interface or method name can have different implementations. In Java, method overloading and overriding are common examples.";
+    }
+
+    if (text.includes("dbms")) {
+        return "DBMS stands for Database Management System. It helps users create, store, organize and retrieve data from databases.";
+    }
+
+    if (text.includes("html")) {
+        return "HTML stands for HyperText Markup Language. It is used to structure content on web pages.";
+    }
+
+    if (text.includes("sql")) {
+        return "SQL stands for Structured Query Language. It is used to create, read, update and delete data in relational databases.";
+    }
+
+    if (text.includes("hello") || text.includes("hi")) {
+        return "Hello! 👋 What topic would you like to study?";
+    }
+
+    return "I can help you with Python, Java, C, SQL, DBMS and HTML. Try asking me a specific question about one of these topics.";
+}
+
+</script>
+
+</body>
+</html>

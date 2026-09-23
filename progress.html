@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Progress</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+    <h2>📊 My Progress</h2>
+    <a href="dashboard.html">Dashboard</a>
+</nav>
+
+<div class="container">
+
+    <div class="grid">
+
+        <div class="feature-card">
+            <h2>📚 Study Progress</h2>
+
+            <div class="progress-circle">
+                <span id="progressText">0%</span>
+            </div>
+
+            <progress id="progressBar"
+                      value="0"
+                      max="100">
+            </progress>
+        </div>
+
+        <div class="feature-card">
+            <h2>📝 Quiz Score</h2>
+
+            <h1 id="quizScore">0%</h1>
+
+            <p>Your latest quiz performance</p>
+        </div>
+
+        <div class="feature-card">
+            <h2>📖 Study Tasks</h2>
+
+            <h1 id="completedTasks">0</h1>
+
+            <p>Completed tasks</p>
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>📈 Learning Summary</h2>
+
+        <p id="summary"></p>
+
+        <a href="planner.html">
+            <button>Continue Studying 📚</button>
+        </a>
+
+    </div>
+
+</div>
+
+<script>
+
+const progress =
+    Number(localStorage.getItem("progress")) || 0;
+
+const quizScore =
+    Number(localStorage.getItem("quizScore")) || 0;
+
+const tasks =
+    JSON.parse(localStorage.getItem("studyTasks")) || [];
+
+const completed =
+    tasks.filter(task => task.completed).length;
+
+document.getElementById("progressText").textContent =
+    progress + "%";
+
+document.getElementById("progressBar").value =
+    progress;
+
+document.getElementById("quizScore").textContent =
+    quizScore + "%";
+
+document.getElementById("completedTasks").textContent =
+    completed;
+
+document.getElementById("summary").textContent =
+    `You have completed ${completed} study task(s) and your latest quiz score is ${quizScore}%. Keep learning and improve your progress!`;
+
+</script>
+
+</body>
+</html>

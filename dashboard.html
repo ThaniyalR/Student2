@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartStudy AI - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+    <h2>🎓 SmartStudy AI</h2>
+
+    <div>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="planner.html">Planner</a>
+        <a href="chatbot.html">AI Tutor</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="progress.html">Progress</a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <h1>Welcome, <span id="name"></span> 👋</h1>
+
+    <p id="studyInfo"></p>
+
+    <div class="grid">
+
+        <div class="feature-card">
+            <h2>📚 AI Study Planner</h2>
+            <p>Create a personalized study timetable.</p>
+            <a href="planner.html">
+                <button>Open Planner</button>
+            </a>
+        </div>
+
+        <div class="feature-card">
+            <h2>🤖 AI Study Tutor</h2>
+            <p>Ask questions and get instant study help.</p>
+            <a href="chatbot.html">
+                <button>Open AI Tutor</button>
+            </a>
+        </div>
+
+        <div class="feature-card">
+            <h2>📝 Practice Quiz</h2>
+            <p>Test your knowledge and calculate your score.</p>
+            <a href="quiz.html">
+                <button>Start Quiz</button>
+            </a>
+        </div>
+
+        <div class="feature-card">
+            <h2>📊 My Progress</h2>
+            <p>Track your learning progress and quiz performance.</p>
+            <a href="progress.html">
+                <button>View Progress</button>
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const name = localStorage.getItem("studentName") || "Student";
+const hours = localStorage.getItem("studyHours") || "0";
+const subjects = localStorage.getItem("subjects") || "No subjects";
+
+document.getElementById("name").textContent = name;
+
+document.getElementById("studyInfo").textContent =
+    "You have " + hours + " study hour(s) per day. Subjects: " + subjects;
+</script>
+
+</body>
+</html>

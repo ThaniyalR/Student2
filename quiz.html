@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+    <h2>📝 Practice Quiz</h2>
+    <a href="dashboard.html">Dashboard</a>
+</nav>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>Computer Science Quiz</h1>
+
+        <div id="quiz"></div>
+
+        <button onclick="nextQuestion()" id="nextButton">
+            Next Question →
+        </button>
+
+        <div id="result"></div>
+
+    </div>
+
+</div>
+
+<script>
+
+const questions = [
+
+{
+    question: "What does HTML stand for?",
+    options: [
+        "HyperText Markup Language",
+        "HighText Machine Language",
+        "Hyperlink Text Management Language",
+        "Home Tool Markup Language"
+    ],
+    answer: 0
+},
+
+{
+    question: "Which language is commonly used for Data Science?",
+    options: [
+        "Python",
+        "HTML",
+        "CSS",
+        "XML"
+    ],
+    answer: 0
+},
+
+{
+    question: "What does DBMS stand for?",
+    options: [
+        "Database Management System",
+        "Data Backup Management Software",
+        "Database Machine System",
+        "Data Management Service"
+    ],
+    answer: 0
+},
+
+{
+    question: "Which keyword creates a class in Java?",
+    options: [
+        "class",
+        "object",
+        "new",
+        "define"
+    ],
+    answer: 0
+},
+
+{
+    question: "Which symbol is used for a single-line comment in C?",
+    options: [
+        "//",
+        "/*",
+        "#",
+        "<!--"
+    ],
+    answer: 0
+},
+
+{
+    question: "Which SQL command is used to retrieve data?",
+    options: [
+        "SELECT",
+        "GET",
+        "FETCHDATA",
+        "READ"
+    ],
+    answer: 0
+},
+
+{
+    question: "What does CPU stand for?",
+    options: [
+        "Central Processing Unit",
+        "Computer Processing Utility",
+        "Central Program Unit",
+        "Computer Power Unit"
+    ],
+    answer: 0
+},
+
+{
+    question: "Which HTML tag creates a hyperlink?",
+    options: [
+        "<a>",
+        "<link>",
+        "<href>",
+        "<url>"
+    ],
+    answer: 0
+},
+
+{
+    question: "Which data structure follows LIFO?",
+    options: [
+        "Stack",
+        "Queue",
+        "Array",
+        "Tree"
+    ],
+    answer: 0
+},
+
+{
+    question: "Which technology is commonly used to style HTML?",
+    options: [
+        "CSS",
+        "SQL",
+        "Python",
+        "Java"
+    ],
+    answer: 0
+}
+
+];
+
+let currentQuestion = 0;
+let score = 0;
+
+function showQuestion() {
+
+    const q = questions[currentQuestion];
+
+    let html = `
+        <h2>
+            Question ${currentQuestion + 1} / ${questions.length}
+        </h2>
+
+        <h3>${q.question}</h3>
+    `;
+
+    q.options.forEach((option, index) => {
+
+        html += `
+            <button class="option"
+                    onclick="selectAnswer(${index})">
+                ${option}
+            </button>
+        `;
+
+    });
+
+    document.getElementById("quiz").innerHTML = html;
+}
+
+function selectAnswer(selected) {
+
+    const correct = questions[currentQuestion].answer;
+
+    const buttons = document.querySelectorAll(".option");
+
+    buttons.forEach(button => {
+        button.disabled = true;
+    });
+
+    if (selected === correct) {
+        score++;
+        buttons[selected].classList.add("correct");
+    } else {
+        buttons[selected].classList.add("wrong");
+        buttons[correct].classList.add("correct");
+    }
+
+}
+
+function nextQuestion() {
+
+    if (currentQuestion < questions.length - 1) {
+
+        currentQuestion++;
+
+        showQuestion();
+
+    } else {
+
+        finishQuiz();
+
+    }
+}
+
+function finishQuiz() {
+
+    const percentage = Math.round(
+        (score / questions.length) * 100
+    );
+
+    localStorage.setItem("quizScore", percentage);
+
+    document.getElementById("quiz").innerHTML = `
+        <h1>🎉 Quiz Completed!</h1>
+
+        <h2>Your Score: ${score}/${questions.length}</h2>
+
+        <h2>${percentage}%</h2>
+    `;
+
+    document.getElementById("nextButton").style.display = "none";
+
+    document.getElementById("result").innerHTML = `
+        <br>
+        <a href="progress.html">
+            <button>View My Progress 📊</button>
+        </a>
+    `;
+}
+
+showQuestion();
+
+</script>
+
+</body>
+</html>

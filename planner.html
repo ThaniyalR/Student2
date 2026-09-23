@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Planner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+    <h2>📚 AI Study Planner</h2>
+    <a href="dashboard.html">Dashboard</a>
+</nav>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>Create Your Study Plan</h1>
+
+        <label>Subject</label>
+        <input type="text" id="subject"
+               placeholder="Example: Python">
+
+        <label>Topic</label>
+        <input type="text" id="topic"
+               placeholder="Example: Functions">
+
+        <label>Difficulty</label>
+        <select id="difficulty">
+            <option value="Weak">Weak</option>
+            <option value="Average">Average</option>
+            <option value="Strong">Strong</option>
+        </select>
+
+        <label>Study Time (minutes)</label>
+        <input type="number" id="time"
+               placeholder="Example: 60">
+
+        <button onclick="addTask()">Add Study Task ➕</button>
+
+    </div>
+
+    <div class="card">
+
+        <h2>📅 Your Study Plan</h2>
+
+        <div id="plan"></div>
+
+    </div>
+
+</div>
+
+<script>
+
+let tasks = JSON.parse(localStorage.getItem("studyTasks")) || [];
+
+function displayTasks() {
+
+    const plan = document.getElementById("plan");
+
+    if (tasks.length === 0) {
+        plan.innerHTML = "<p>No study tasks yet.</p>";
+        return;
+    }
+
+    plan.innerHTML = "";
+
+    tasks.forEach((task, index) => {
+
+        const div = document.createElement("div");
+        div.className = "task";
+
+        div.innerHTML = `
+            <h3>${task.subject}</h3>
+            <p>📖 Topic: ${task.topic}</p>
+            <p>🔥 Difficulty: ${task.difficulty}</p>
+            <p>⏱️ Study Time: ${task.time} minutes</p>
+
+            <button onclick="completeTask(${index})">
+                ${task.completed ? "✅ Completed" : "Complete"}
+            </button>
+
+            <button onclick="deleteTask(${index})">
+                🗑️ Delete
+            </button>
+        `;
+
+        plan.appendChild(div);
+    });
+}
+
+function addTask() {
+
+    const subject = document.getElementById("subject").value.trim();
+    const topic = document.getElementById("topic").value.trim();
+    const difficulty = document.getElementById("difficulty").value;
+    const time = document.getElementById("time").value;
+
+    if (!subject || !topic || !time) {
+        alert("Please fill all fields.");
+        return;
+    }
+
+    tasks.push({
+        subject,
+        topic,
+        difficulty,
+        time,
+        completed: false
+    });
+
+    localStorage.setItem("studyTasks", JSON.stringify(tasks));
+
+    document.getElementById("subject").value = "";
+    document.getElementById("topic").value = "";
+    document.getElementById("time").value = "";
+
+    displayTasks();
+    updateProgress();
+}
+
+function completeTask(index) {
+
+    tasks[index].completed = !tasks[index].completed;
+
+    localStorage.setItem("studyTasks", JSON.stringify(tasks));
+
+    displayTasks();
+    updateProgress();
+}
+
+function deleteTask(index) {
+
+    tasks.splice(index, 1);
+
+    localStorage.setItem("studyTasks", JSON.stringify(tasks));
+
+    displayTasks();
+    updateProgress();
+}
+
+function updateProgress() {
+
+    if (tasks.length === 0) {
+        localStorage.setItem("progress", "0");
+        return;
+    }
+
+    const completed = tasks.filter(task => task.completed).length;
+
+    const progress = Math.round(
+        (completed / tasks.length) * 100
+    );
+
+    localStorage.setItem("progress", progress);
+}
+
+displayTasks();
+
+</script>
+
+</body>
+</html>

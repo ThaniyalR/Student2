@@ -1,41 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Study Tutor</title>
+
+    <title>SmartStudy AI Tutor</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <nav>
-    <h2>🤖 AI Study Tutor</h2>
-    <a href="dashboard.html">Dashboard</a>
+
+    <h2>🤖 SmartStudy AI</h2>
+
+    <div>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="planner.html">Planner</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="progress.html">Progress</a>
+    </div>
+
 </nav>
+
 
 <div class="container">
 
     <div class="card chatbot">
 
-        <h1>Ask Your AI Tutor</h1>
+        <h1>🤖 AI Study Tutor</h1>
+
+        <p>
+            Ask me anything. I can help with programming,
+            mathematics, science, college subjects and more.
+        </p>
+
 
         <div id="chatBox">
 
             <div class="bot-message">
-                👋 Hello! I'm your SmartStudy AI Tutor.
-                Ask me about Python, Java, C, DBMS or HTML.
+                👋 Hi! I'm your SmartStudy AI Tutor.
+                What would you like to learn today?
             </div>
 
         </div>
 
+
         <div class="chat-input">
 
-            <input type="text"
-                   id="userMessage"
-                   placeholder="Ask your question...">
+            <input
+                type="text"
+                id="userMessage"
+                placeholder="Ask anything..."
+                onkeydown="handleEnter(event)"
+            >
 
-            <button onclick="sendMessage()">Send</button>
+            <button onclick="sendMessage()">
+                Send 🚀
+            </button>
 
         </div>
 
@@ -43,72 +67,128 @@
 
 </div>
 
+
 <script>
 
-function sendMessage() {
+async function sendMessage() {
 
     const input = document.getElementById("userMessage");
+
     const message = input.value.trim();
 
-    if (!message) return;
+    if (!message) {
+        return;
+    }
+
 
     const chatBox = document.getElementById("chatBox");
 
+
+    // Show user message
+
     chatBox.innerHTML += `
         <div class="user-message">
-            ${message}
+            ${escapeHTML(message)}
         </div>
     `;
 
-    const reply = getReply(message);
-
-    chatBox.innerHTML += `
-        <div class="bot-message">
-            🤖 ${reply}
-        </div>
-    `;
 
     input.value = "";
+
+
+    // Show loading
+
+    const loading = document.createElement("div");
+
+    loading.className = "bot-message";
+
+    loading.id = "loading";
+
+    loading.textContent = "🤖 Thinking...";
+
+    chatBox.appendChild(loading);
+
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+
+    try {
+
+        const response = await fetch("/chat", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                message: message
+            })
+
+        });
+
+
+        const data = await response.json();
+
+
+        document.getElementById("loading").remove();
+
+
+        chatBox.innerHTML += `
+            <div class="bot-message">
+                🤖 ${formatAnswer(data.reply)}
+            </div>
+        `;
+
+
+    } catch (error) {
+
+        document.getElementById("loading").remove();
+
+        chatBox.innerHTML += `
+            <div class="bot-message">
+                ❌ Cannot connect to the AI server.
+                Make sure server.py is running.
+            </div>
+        `;
+
+    }
+
 
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function getReply(message) {
 
-    const text = message.toLowerCase();
+function handleEnter(event) {
 
-    if (text.includes("python")) {
-        return "Python is a high-level programming language known for its simple syntax and wide use in AI, data science and automation.";
+    if (event.key === "Enter") {
+        sendMessage();
     }
 
-    if (text.includes("java")) {
-        return "Java is an object-oriented programming language. It uses the JVM to run Java bytecode across different platforms.";
-    }
+}
 
-    if (text.includes("polymorphism")) {
-        return "Polymorphism means one interface or method name can have different implementations. In Java, method overloading and overriding are common examples.";
-    }
 
-    if (text.includes("dbms")) {
-        return "DBMS stands for Database Management System. It helps users create, store, organize and retrieve data from databases.";
-    }
+function escapeHTML(text) {
 
-    if (text.includes("html")) {
-        return "HTML stands for HyperText Markup Language. It is used to structure content on web pages.";
-    }
+    const div = document.createElement("div");
 
-    if (text.includes("sql")) {
-        return "SQL stands for Structured Query Language. It is used to create, read, update and delete data in relational databases.";
-    }
+    div.textContent = text;
 
-    if (text.includes("hello") || text.includes("hi")) {
-        return "Hello! 👋 What topic would you like to study?";
-    }
+    return div.innerHTML;
 
-    return "I can help you with Python, Java, C, SQL, DBMS and HTML. Try asking me a specific question about one of these topics.";
+}
+
+
+function formatAnswer(text) {
+
+    return escapeHTML(text)
+        .replace(/\n/g, "<br>");
+
 }
 
 </script>
 
 </body>
+
 </html>

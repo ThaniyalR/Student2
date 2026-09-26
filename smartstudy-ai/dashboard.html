@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SmartStudy AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+    <div class="card dashboard-card">
+        <h1>Welcome to Your Dashboard, <span id="userName"></span>!</h1>
+        <p>Your Study Progress:</p>
+        <div id="progressContainer">
+            <p>Daily Study Hours: <span id="dailyHours"></span></p>
+            <p>Subjects: <span id="subjectList"></span></p>
+            <p>Progress: <span id="progress"></span>%</p>
+            <p>Quiz Score: <span id="quizScore"></span></p>
+        </div>
+        <button onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<script>
+function loadDashboard() {
+    const name = localStorage.getItem("studentName");
+    const hours = localStorage.getItem("studyHours");
+    const subjects = localStorage.getItem("subjects");
+    const progress = localStorage.getItem("progress");
+    const quizScore = localStorage.getItem("quizScore");
+
+    document.getElementById("userName").textContent = name || "Student";
+    document.getElementById("dailyHours").textContent = hours || "0";
+    document.getElementById("subjectList").textContent = subjects || "None";
+    document.getElementById("progress").textContent = progress || "0";
+    document.getElementById("quizScore").textContent = quizScore || "0";
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = "student.html";
+}
+
+window.onload = loadDashboard;
+</script>
+
+</body>
+</html>

@@ -129,29 +129,36 @@ async function sendMessage() {
         });
 
 
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+            throw new Error("The Python API is not serving this page. Start server.py and open http://127.0.0.1:5000/chatbot.html.");
+        }
+
         const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || "The AI service request failed.");
+        }
 
-
-        document.getElementById("loading").remove();
-
+        loading.remove();
 
         chatBox.innerHTML += `
             <div class="bot-message">
-                🤖 ${formatAnswer(data.reply)}
+                🤖 ${formatAnswer(data.reply || "No response was returned.")}
             </div>
         `;
 
 
     } catch (error) {
 
-        document.getElementById("loading").remove();
+        loading.remove();
 
-        chatBox.innerHTML += `
-            <div class="bot-message">
-                ❌ Cannot connect to the AI server.
-                Make sure server.py is running.
-            </div>
-        `;
+        const errorMessage = error instanceof TypeError
+            ? "Cannot reach the Python server. Start it with python server.py, then open http://127.0.0.1:5000/chatbot.html."
+            : error.message;
+        const errorBubble = document.createElement("div");
+        errorBubble.className = "bot-message";
+        errorBubble.textContent = `❌ ${errorMessage}`;
+        chatBox.appendChild(errorBubble);
 
     }
 

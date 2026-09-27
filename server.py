@@ -25,6 +25,7 @@ def project_file(filename):
 
 
 @app.post("/chat")
+@app.post("/api/chat")
 def chat():
     data = request.get_json(silent=True) or {}
     message = data.get("message", "")

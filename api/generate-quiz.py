@@ -1,5 +1,7 @@
 import json
 import os
+import random
+import time
 from http.server import BaseHTTPRequestHandler
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -89,8 +91,15 @@ The answer must be the zero-based index of the correct option."""
         )
 
         try:
-            with urlopen(gemini_request, timeout=60) as response:
-                result = json.loads(response.read().decode("utf-8"))
+            for attempt in range(3):
+                try:
+                    with urlopen(gemini_request, timeout=60) as response:
+                        result = json.loads(response.read().decode("utf-8"))
+                    break
+                except HTTPError as error:
+                    if error.code != 503 or attempt == 2:
+                        raise
+                    time.sleep((2 ** attempt) + random.random())
 
             quiz = json.loads(
                 result["candidates"][0]["content"]["parts"][0]["text"]

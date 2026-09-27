@@ -88,6 +88,187 @@ def chat():
         return jsonify({
             "error": "The AI request failed. Check the server log and API access."
         }), 502
+@app.post("/generate-quiz")
+@app.post("/api/generate-quiz")
+def generate_quiz():
+
+    data = request.get_json(silent=True) or {}
+
+    subject = data.get("subject", "Computer Science")
+    difficulty = data.get("difficulty", "medium")
+
+    try:
+        count = int(data.get("count", 10))
+    except (TypeError, ValueError):
+        count = 10
+
+    # Keep the quiz size safe
+    count = max(1, min(count, 20))
+
+    api_key = os.getenv("GEMINI_API_KEY")
+
+    if not api_key:
+        return jsonify({
+            "error": "Add GEMINI_API_KEY to your .env file."
+        }), 503
+
+    prompt = f"""
+Create exactly {count} multiple-choice questions for a student.
+
+Subject: {subject}
+Difficulty: {difficulty}
+
+Requirements:
+- Create exactly {count} questions.
+- Each question must have exactly 4 options.
+- Only one option must be correct.
+- Make the questions educational and accurate.
+- Generate NEW questions each time.
+- Avoid repeating common questions.
+- Do not include explanations.
+- Return ONLY valid JSON.
+
+Return exactly this format:
+
+{{
+  "questions": [
+    {{
+      "question": "Question text",
+      "options": [
+        "Option A",
+        "Option B",
+        "Option C",
+        "Option D"
+      ],
+      "answer": 0
+    }}
+  ]
+}}
+
+The answer must be:
+0 for the first option
+1 for the second option
+2 for the third option
+3 for the fourth option
+"""
+
+    try:
+
+        payload = json.dumps({
+            "contents": [{
+                "parts": [{
+                    "text": prompt
+                }]
+            }],
+            "generationConfig": {
+                "temperature": 1.0,
+                "responseMimeType": "application/json"
+            }
+        }).encode("utf-8")
+
+        gemini_request = Request(
+            "https://generativelanguage.googleapis.com/v1beta/models/"
+            f"gemini-3.8-flash:generateContent?key={api_key}",
+            data=payload,
+            headers={
+                "Content-Type": "application/json"
+            },
+            method="POST"
+        )
+
+        with urlopen(gemini_request, timeout=60) as response:
+            result = json.loads(
+                response.read().decode("utf-8")
+            )
+
+        quiz_text = (
+            result["candidates"][0]
+            ["content"]["parts"][0]["text"]
+        )
+
+        quiz_data = json.loads(quiz_text)
+
+        # Basic validation
+        if "questions" not in quiz_data:
+            raise ValueError("Invalid quiz format")
+
+        if len(quiz_data["questions"]) != count:
+            raise ValueError("Wrong number of questions")
+
+        for question in quiz_data["questions"]:
+
+            if "question" not in question:
+                raise ValueError("Missing question")
+
+            if "options" not in question:
+                raise ValueError("Missing options")
+
+            if len(question["options"]) != 4:
+                raise ValueError("Each question needs 4 options")
+
+            if question["answer"] not in [0, 1, 2, 3]:
+                raise ValueError("Invalid answer")
+
+        return jsonify(quiz_data)
+
+    except HTTPError as error:
+
+        if error.code in {400, 401, 403}:
+            return jsonify({
+                "error": "Gemini API key is invalid or does not have API access."
+            }), 401
+
+        if error.code == 429:
+            return jsonify({
+                "error": "Gemini API limit reached. Try again later."
+            }), 429
+
+        if error.code == 503:
+            return jsonify({
+                "error": "Gemini is temporarily busy. Try again later."
+            }), 503
+
+        app.logger.error(
+            "Gemini quiz request failed: HTTP %s",
+            error.code
+        )
+
+        return jsonify({
+            "error": "Quiz generation failed."
+        }), 502
+
+    except (
+        KeyError,
+        IndexError,
+        json.JSONDecodeError,
+        ValueError
+    ) as error:
+
+        app.logger.error(
+            "Invalid Gemini quiz response: %s",
+            error
+        )
+
+        return jsonify({
+            "error": "Gemini returned an invalid quiz."
+        }), 502
+
+    except URLError:
+
+        return jsonify({
+            "error": "Could not connect to Gemini."
+        }), 502
+
+    except Exception as error:
+
+        app.logger.error(
+            "Quiz generation failed (%s)",
+            type(error).__name__
+        )
+
+        return jsonify({
+            "error": "The AI quiz could not be generated."
+        }), 502
 
 
 if __name__ == "__main__":

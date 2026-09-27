@@ -1,330 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>SmartStudy AI Quiz</title>
-
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+    <nav>
+        <h2>🤖 SmartStudy AI</h2>
+        <div>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="planner.html">Planner</a>
+            <a href="chatbot.html">AI Tutor</a>
+            <a href="progress.html">Progress</a>
+        </div>
+    </nav>
 
-<nav>
-    <h2>🤖 SmartStudy AI</h2>
+    <div class="container">
+        <div class="card">
+            <h1>🧠 AI Quiz</h1>
+            <p id="quizInfo">Choose a subject and generate a new quiz.</p>
 
-    <div>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="planner.html">Planner</a>
-        <a href="chatbot.html">AI Tutor</a>
-        <a href="progress.html">Progress</a>
+            <div class="quiz-settings">
+                <select id="subject">
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Python">Python</option>
+                    <option value="Java">Java</option>
+                    <option value="C Programming">C Programming</option>
+                    <option value="DBMS">DBMS</option>
+                    <option value="HTML and CSS">HTML and CSS</option>
+                    <option value="SQL">SQL</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Mixed CSE">Mixed CSE</option>
+                </select>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <button onclick="generateQuiz()">🚀 Generate New Quiz</button>
+            </div>
+
+            <div id="loading" style="display:none;">
+                <h3>🤖 Creating your quiz...</h3>
+                <p>Please wait...</p>
+            </div>
+            <div id="quiz"></div>
+            <div id="quizControls" style="display:none;">
+                <button onclick="submitQuiz()">✅ Submit Quiz</button>
+                <button onclick="generateQuiz()">🔄 New Quiz</button>
+            </div>
+            <div id="result"></div>
+        </div>
     </div>
-</nav>
-
-
-<div class="container">
-
-    <div class="card">
-
-        <h1>🧠 AI Quiz</h1>
-
-        <p id="quizInfo">
-            Choose a subject and generate a new quiz.
-        </p>
-
-        <div class="quiz-settings">
-
-            <select id="subject">
-                <option value="Computer Science">Computer Science</option>
-                <option value="Python">Python</option>
-                <option value="Java">Java</option>
-                <option value="C Programming">C Programming</option>
-                <option value="DBMS">DBMS</option>
-                <option value="HTML and CSS">HTML and CSS</option>
-                <option value="SQL">SQL</option>
-                <option value="Mathematics">Mathematics</option>
-                <option value="Mixed CSE">Mixed CSE</option>
-            </select>
-
-            <select id="difficulty">
-                <option value="easy">Easy</option>
-                <option value="medium" selected>Medium</option>
-                <option value="hard">Hard</option>
-            </select>
-
-            <button onclick="generateQuiz()">
-                🚀 Generate New Quiz
-            </button>
-
-        </div>
-
-
-        <div id="loading" style="display:none;">
-            <h3>🤖 AI is creating your quiz...</h3>
-            <p>Please wait...</p>
-        </div>
-
-
-        <div id="quiz"></div>
-
-
-        <div id="quizControls" style="display:none;">
-
-            <button onclick="submitQuiz()">
-                ✅ Submit Quiz
-            </button>
-
-            <button onclick="generateQuiz()">
-                🔄 New Quiz
-            </button>
-
-        </div>
-
-
-        <div id="result"></div>
-
-    </div>
-
-</div>
-
 
 <script>
-
 let questions = [];
 
-
-/* =========================
-   GENERATE QUIZ
-========================= */
-
 async function generateQuiz() {
-
-    const subject =
-        document.getElementById("subject").value;
-
-    const difficulty =
-        document.getElementById("difficulty").value;
-
-
-    document.getElementById("loading").style.display = "block";
-
+    const subject = document.getElementById("subject").value;
+    const difficulty = document.getElementById("difficulty").value;
+    const loading = document.getElementById("loading");
+    loading.style.display = "block";
     document.getElementById("quiz").innerHTML = "";
-
     document.getElementById("quizControls").style.display = "none";
-
     document.getElementById("result").innerHTML = "";
 
-
     try {
-
         const response = await fetch("/generate-quiz", {
-
             method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-
-                subject: subject,
-
-                difficulty: difficulty,
-
-                count: 10
-
-            })
-
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ subject, difficulty, count: 10 })
         });
-
-
         const data = await response.json();
-
-
         if (!response.ok) {
-
             throw new Error(data.error || "Quiz generation failed");
-
         }
-
-
+        if (!Array.isArray(data.questions) || data.questions.length === 0) {
+            throw new Error("The quiz response was empty");
+        }
         questions = data.questions;
-
-
-        displayQuiz();
-
-
+        document.getElementById("quizInfo").textContent =
+            `${subject} · ${difficulty} · AI-generated`;
     } catch (error) {
-
-        document.getElementById("quiz").innerHTML = `
-            <div class="bot-message">
-                ❌ ${escapeHTML(error.message)}
-            </div>
-        `;
-
+        questions = getFallbackQuestions();
+        document.getElementById("quizInfo").textContent =
+            "Gemini is unavailable. Showing a built-in mixed CSE practice quiz.";
+    } finally {
+        loading.style.display = "none";
     }
 
-
-    document.getElementById("loading").style.display = "none";
-
+    displayQuiz();
 }
 
-
-/* =========================
-   DISPLAY QUIZ
-========================= */
+function getFallbackQuestions() {
+    return [
+        {
+            question: "What does HTML stand for?",
+            options: ["HighText Machine Language", "HyperText Markup Language", "Home Tool Markup Language", "Hyperlink Text Management Language"],
+            answer: 1
+        },
+        {
+            question: "Which language is commonly used for data science?",
+            options: ["HTML", "Python", "CSS", "XML"],
+            answer: 1
+        },
+        {
+            question: "What does DBMS stand for?",
+            options: ["Data Backup Management Software", "Database Machine System", "Database Management System", "Data Management Service"],
+            answer: 2
+        },
+        {
+            question: "Which keyword declares a class in Java?",
+            options: ["object", "new", "define", "class"],
+            answer: 3
+        },
+        {
+            question: "Which symbol starts a single-line comment in C?",
+            options: ["/*", "//", "#", "<!--"],
+            answer: 1
+        },
+        {
+            question: "Which SQL command retrieves rows from a table?",
+            options: ["GET", "READ", "SELECT", "FETCHDATA"],
+            answer: 2
+        },
+        {
+            question: "What does CPU stand for?",
+            options: ["Central Processing Unit", "Computer Power Unit", "Central Program Unit", "Computer Processing Utility"],
+            answer: 0
+        },
+        {
+            question: "Which HTML element creates a hyperlink?",
+            options: ["<link>", "<a>", "<href>", "<url>"],
+            answer: 1
+        },
+        {
+            question: "Which data structure follows LIFO order?",
+            options: ["Queue", "Array", "Stack", "Tree"],
+            answer: 2
+        },
+        {
+            question: "Which technology is primarily used to style HTML pages?",
+            options: ["SQL", "Python", "Java", "CSS"],
+            answer: 3
+        }
+    ];
+}
 
 function displayQuiz() {
-
     const quiz = document.getElementById("quiz");
-
-
     quiz.innerHTML = "";
 
-
-    questions.forEach((q, index) => {
-
-        const questionDiv =
-            document.createElement("div");
-
+    questions.forEach((question, index) => {
+        const questionDiv = document.createElement("div");
         questionDiv.className = "quiz-question";
 
+        const heading = document.createElement("h3");
+        heading.textContent = `${index + 1}. ${question.question}`;
+        questionDiv.appendChild(heading);
 
-        let optionsHTML = "";
+        question.options.forEach((option, optionIndex) => {
+            const label = document.createElement("label");
+            label.className = "quiz-option";
 
+            const input = document.createElement("input");
+            input.type = "radio";
+            input.name = `question${index}`;
+            input.value = optionIndex;
 
-        q.options.forEach((option, optionIndex) => {
-
-            optionsHTML += `
-                <label class="quiz-option">
-
-                    <input
-                        type="radio"
-                        name="question${index}"
-                        value="${optionIndex}"
-                    >
-
-                    <span>
-                        ${escapeHTML(option)}
-                    </span>
-
-                </label>
-            `;
-
+            const text = document.createElement("span");
+            text.textContent = option;
+            label.append(input, text);
+            questionDiv.appendChild(label);
         });
 
-
-        questionDiv.innerHTML = `
-
-            <h3>
-                ${index + 1}. ${escapeHTML(q.question)}
-            </h3>
-
-            ${optionsHTML}
-
-        `;
-
-
         quiz.appendChild(questionDiv);
-
     });
 
-
-    document.getElementById("quizControls")
-        .style.display = "block";
-
+    document.getElementById("quizControls").style.display = "block";
 }
-
-
-/* =========================
-   SUBMIT QUIZ
-========================= */
 
 function submitQuiz() {
-
     let score = 0;
-
-
-    questions.forEach((q, index) => {
-
-        const selected =
-            document.querySelector(
-                `input[name="question${index}"]:checked`
-            );
-
-
-        if (selected) {
-
-            const answer =
-                Number(selected.value);
-
-
-            if (answer === q.answer) {
-
-                score++;
-
-            }
-
+    questions.forEach((question, index) => {
+        const selected = document.querySelector(
+            `input[name="question${index}"]:checked`
+        );
+        if (selected && Number(selected.value) === question.answer) {
+            score++;
         }
-
     });
 
-
-    const percentage =
-        Math.round((score / questions.length) * 100);
-
-
-    document.getElementById("result").innerHTML = `
-
-        <div class="card">
-
-            <h2>🎉 Quiz Completed!</h2>
-
-            <h1>
-                ${score} / ${questions.length}
-            </h1>
-
-            <p>
-                Score: ${percentage}%
-            </p>
-
-            <button onclick="generateQuiz()">
-                🔄 Generate Another Quiz
-            </button>
-
-        </div>
-
-    `;
-
-
-    // Save score
-
-    localStorage.setItem(
-        "quizScore",
-        percentage
-    );
-
+    const percentage = Math.round((score / questions.length) * 100);
+    document.getElementById("result").textContent =
+        `Quiz completed: ${score} / ${questions.length} (${percentage}%).`;
+    localStorage.setItem("quizScore", percentage);
 }
-
-
-/* =========================
-   SECURITY
-========================= */
-
-function escapeHTML(text) {
-
-    const div =
-        document.createElement("div");
-
-    div.textContent = text;
-
-    return div.innerHTML;
-
-}
-
 </script>
-
 </body>
 </html>

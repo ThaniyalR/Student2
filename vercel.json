@@ -1,6 +1,7 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/chat", "destination": "/api/chat" }
+    { "source": "/chat", "destination": "/api/chat" },
+    { "source": "/generate-quiz", "destination": "/api/generate-quiz" }
   ]
 }
